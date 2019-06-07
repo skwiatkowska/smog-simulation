@@ -5,6 +5,8 @@ except ImportError:
 
 from tkinter import messagebox
 
+import DataHandler
+import Kriging
 import matplotlib
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -12,8 +14,6 @@ import mplcursors
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-
-import Kriging, DataHandler
 
 backgroundImage = plt.imread('krakow_targeo.png')
 newCmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["green", "yellow", "red"])
@@ -26,7 +26,7 @@ backgroundColour = "gray30"
 
 
 class App(tk.Frame):
-    def __init__(self, master=None, **kwargs):
+    def __init__(self, master = None, **kwargs):
         tk.Frame.__init__(self, master, **kwargs)
 
         self.running = False
@@ -40,34 +40,33 @@ class App(tk.Frame):
         self.enteredTrafficValue = 1
         self.enteredRainfallValue = 0
 
-
         buttons = tk.Frame(self)
-        buttons.configure(background=backgroundColour)
-        buttons.pack(expand=True)
-        self.label = tk.Label(buttons, text="SMOG SIMULATION IN KRAKOW")
-        self.label.grid(row=0, column=0, columnspan=4, padx=230, pady=10)
-        self.label.config(bg=backgroundColour, fg="white", font=("Bahnschrift", 18))
+        buttons.configure(background = backgroundColour)
+        buttons.pack(expand = True)
+        self.label = tk.Label(buttons, text = "SMOG SIMULATION IN KRAKOW")
+        self.label.grid(row = 0, column = 0, columnspan = 4, padx = 230, pady = 10)
+        self.label.config(bg = backgroundColour, fg = "white", font = ("Bahnschrift", 18))
 
-        self.label2 = tk.Label(buttons, text="SELECT THE LENGTH OF THE SIMULATION:")
-        self.label2.grid(row=1, column=0)
-        self.label2.config(bg=backgroundColour, fg="white", font=("Bahnschrift", 10))
-        self.dailySimButton = tk.Button(buttons, bg=buttonColour, text='Daily propagation',
-                                        command=lambda: self.showAskingAboutParametersWindow(0))
-        self.dailySimButton.grid(row=1, column=1, pady=(0, 5))
-        self.weeklySimButton = tk.Button(buttons, bg=buttonColour, text='Weekly propagation',
-                                         command=lambda: self.showAskingAboutParametersWindow(1))
-        self.weeklySimButton.grid(row=1, column=2, pady=(0, 5))
-        self.pauseButton = tk.Button(buttons, bg=buttonColour, text='Pause', command=self.onClick)
-        self.configure(background=buttonColour)
+        self.label2 = tk.Label(buttons, text = "SELECT THE LENGTH OF THE SIMULATION:")
+        self.label2.grid(row = 1, column = 0)
+        self.label2.config(bg = backgroundColour, fg = "white", font = ("Bahnschrift", 10))
+        self.dailySimButton = tk.Button(buttons, bg = buttonColour, text = 'Daily propagation',
+                                        command = lambda: self.showAskingAboutParametersWindow(0))
+        self.dailySimButton.grid(row = 1, column = 1, pady = (0, 5))
+        self.weeklySimButton = tk.Button(buttons, bg = buttonColour, text = 'Weekly propagation',
+                                         command = lambda: self.showAskingAboutParametersWindow(1))
+        self.weeklySimButton.grid(row = 1, column = 2, pady = (0, 5))
+        self.pauseButton = tk.Button(buttons, bg = buttonColour, text = 'Pause', command = self.onClick)
+        self.configure(background = buttonColour)
 
-        self.fig = Figure(figsize=[8, 5])
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+        self.fig = Figure(figsize = [8, 5])
+        self.canvas = FigureCanvasTkAgg(self.fig, master = self)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack()
 
         self.lineBelow = tk.Label(self)
-        self.lineBelow.configure(background=backgroundColour)
-        self.lineBelow.pack(fill=tk.X)
+        self.lineBelow.configure(background = backgroundColour)
+        self.lineBelow.pack(fill = tk.X)
 
     def showAskingAboutParametersWindow(self, period):
 
@@ -127,12 +126,11 @@ class App(tk.Frame):
         self.selectTheMeasurementPeriod(period)
 
         self.enteredWindSpeedValue = newWindSpeed.get()
-        #print(self.enteredWindSpeedValue)
+        # print(self.enteredWindSpeedValue)
         self.enteredWindDirectionValue = newWindDirection.get()
         self.enteredTemperatureValue = newTemperature.get()
         self.enteredTrafficValue = newTraffic.get()
         self.enteredRainfallValue = newRainfall.get()
-
 
     def selectTheMeasurementPeriod(self, period):
         # 0: one day, 1: one week
@@ -144,24 +142,24 @@ class App(tk.Frame):
         if self.animation is None:
             self.dailySimButton["state"] = "disable"
             self.weeklySimButton["state"] = "disable"
-            self.pauseButton.grid(row=1, column=3, pady=(0, 5))
-            self.lineBelow.config(text="Hover the mouse over a selected point to display its name", fg="white",
-                                  font=("Bahnschrift", 9))
+            self.pauseButton.grid(row = 1, column = 3, pady = (0, 5))
+            self.lineBelow.config(text = "Hover the mouse over a selected point to display its name", fg = "white",
+                                  font = ("Bahnschrift", 9))
             return self.start()
 
         if self.running:
             self.animation.event_source.stop()
-            self.pauseButton.config(text='Un-Pause')
+            self.pauseButton.config(text = 'Un-Pause')
         else:
             self.animation.event_source.start()
-            self.pauseButton.config(text='Pause')
+            self.pauseButton.config(text = 'Pause')
         self.running = not self.running
 
     def start(self):
-        self.animation = animation.FuncAnimation(self.fig, self.animate, frames=self.numberOfMeasurements,
-                                                 interval=500, repeat=False)
+        self.animation = animation.FuncAnimation(self.fig, self.animate, frames = self.numberOfMeasurements,
+                                                 interval = 500, repeat = False)
         self.running = True
-        self.pauseButton.config(text='Pause')
+        self.pauseButton.config(text = 'Pause')
         self.animation._start()
 
     def createTitle(self, option, i, T, F, W, WD):
@@ -172,32 +170,34 @@ class App(tk.Frame):
             hour = '12:00'
             date = dates[i]
         title = "Date: " + date + ", Hour: " + hour + ",\nTemperature: " + str(
-        round(T)) + ", Falls: " \
-              + str(round(F)) + "mm, Wind: " + str(round(W)) + "m/s " + WD
-        #print(T,F,W,WD+"\n")
+            round(T)) + ", Falls: " \
+                + str(round(F)) + "mm, Wind: " + str(round(W)) + "m/s " + WD
+        # print(T,F,W,WD+"\n")
         return title
 
     def animate(self, i):
-        Z, T, F, W, WD  = DataHandler.propagation(i, self.option, self.enteredWindSpeedValue, self.enteredWindDirectionValue, self.enteredTemperatureValue, self.enteredTrafficValue, self.enteredRainfallValue)
+        Z, T, F, W, WD = DataHandler.propagation(i, self.option, self.enteredWindSpeedValue,
+                                                 self.enteredWindDirectionValue, self.enteredTemperatureValue,
+                                                 self.enteredTrafficValue, self.enteredRainfallValue)
         xMesh, yMesh, zPrediction, Zi = Kriging.execute(X, Y, Z, i)
         self.fig.clf()
         subplot = self.fig.add_subplot(111)
 
         subplot.set_title(self.createTitle(self.option, i, T, F, W, WD))
-        subplContourf = subplot.imshow(backgroundImage, extent=[0, 90, 0, 60])
-        subplContourf = subplot.contourf(xMesh, yMesh, np.transpose(zPrediction), 50, cmap=newCmap, alpha=0.6,
-                                         vmin=-80,
-                                         vmax=190)
-        subplContourf = subplot.scatter(X, Y, c=Zi, cmap=newCmap, vmin=0, vmax=80)
-        colorbar = self.fig.colorbar(subplContourf, fraction=0.03)
+        subplContourf = subplot.imshow(backgroundImage, extent = [0, 90, 0, 60])
+        subplContourf = subplot.contourf(xMesh, yMesh, np.transpose(zPrediction), 50, cmap = newCmap, alpha = 0.6,
+                                         vmin = -80,
+                                         vmax = 190)
+        subplContourf = subplot.scatter(X, Y, c = Zi, cmap = newCmap, vmin = 0, vmax = 80)
+        colorbar = self.fig.colorbar(subplContourf, fraction = 0.03)
         colorbar.set_label('Smog level')
-        cursor = mplcursors.cursor(subplContourf, hover=True)
+        cursor = mplcursors.cursor(subplContourf, hover = True)
         cursor.connect(
             "add", lambda sel: sel.annotation.set_text(pointNames[sel.target.index]))
 
         if i == self.numberOfMeasurements - 1:
             self.animation = None
-            self.pauseButton.config(text="Show again")
+            self.pauseButton.config(text = "Show again")
             self.dailySimButton["state"] = "normal"
             self.weeklySimButton["state"] = "normal"
 
