@@ -5,8 +5,6 @@ except ImportError:
 
 from tkinter import messagebox
 
-import DataHandler
-import Kriging
 import matplotlib
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -14,6 +12,9 @@ import mplcursors
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+
+import DataHandler
+import Kriging
 
 backgroundImage = plt.imread('krakow_targeo.png')
 newCmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["green", "yellow", "red"])
@@ -33,6 +34,7 @@ class App(tk.Frame):
         self.animation = None
         self.option = None
         self.numberOfMeasurements = None
+        self.nextDayFlag = False
 
         self.enteredWindSpeedValue = 0
         self.enteredWindDirectionValue = ""
@@ -126,7 +128,6 @@ class App(tk.Frame):
         self.selectTheMeasurementPeriod(period)
 
         self.enteredWindSpeedValue = newWindSpeed.get()
-        # print(self.enteredWindSpeedValue)
         self.enteredWindDirectionValue = newWindDirection.get()
         self.enteredTemperatureValue = newTemperature.get()
         self.enteredTrafficValue = newTraffic.get()
@@ -164,15 +165,19 @@ class App(tk.Frame):
 
     def createTitle(self, option, i, T, F, W, WD):
         if option == 0:
-            date = dates[0]
             hour = hours[i]
+            if self.nextDayFlag == False:
+                date = dates[0]
+                if (hour == '21:00'):
+                    self.nextDayFlag = True
+            else:
+                date = dates[1]
         else:
             hour = '12:00'
             date = dates[i]
         title = "Date: " + date + ", Hour: " + hour + ",\nTemperature: " + str(
             round(T)) + ", Falls: " \
                 + str(round(F)) + "mm, Wind: " + str(round(W)) + "m/s " + WD
-        # print(T,F,W,WD+"\n")
         return title
 
     def animate(self, i):
